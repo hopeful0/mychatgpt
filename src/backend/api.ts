@@ -1,25 +1,28 @@
 import dotenv from 'dotenv';
 import { ChatGPTAPI } from 'chatgpt';
 import express from 'express';
+import morgan from 'morgan';
 
 dotenv.config();
 
-const API_KEY = process.env.OPENAI_API_KEY
+const API_KEY = process.env.OPENAI_API_KEY;
 if (!API_KEY) {
-    throw new Error("API_KEY not set!")
+    throw new Error("API_KEY not set!");
 }
-const api = new ChatGPTAPI({ apiKey: API_KEY })
+const api = new ChatGPTAPI({ apiKey: API_KEY });
 
 
-const app = express()
+const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.json())
+app.use(morgan(process.env.MORGAN_FORMAT || 'combined'));
 
-app.set('views', './src/static')
-app.set('view engine', 'pug')
+app.use(express.json());
+
+app.set('views', './src/static');
+app.set('view engine', 'pug');
 app.get('/', (req, res) => {
-    res.render('index')
+    res.render('index');
 })
 
 app.post('/ask', async (req, res) => {
