@@ -1,5 +1,8 @@
+import dotenv from 'dotenv';
 import { ChatGPTAPI } from 'chatgpt';
 import express from 'express';
+
+dotenv.config();
 
 const API_KEY = process.env.OPENAI_API_KEY
 if (!API_KEY) {
