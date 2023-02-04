@@ -1,0 +1,48 @@
+doctype html
+html
+  head
+    title="my chatgpt"
+  body(style='padding:16px')
+    textarea#output(value='' rows="30", style='width:100%') 
+    br
+    input#input(type="text", style='width:100%')
+    br
+    input#btn_send(type="button", value="send" onclick='ask()')
+    input(type="button", value='reset', onclick='reset()')
+    script.
+        var cid = undefined;
+        var mid = undefined;
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const btn_send = document.getElementById('btn_send');
+        output.readOnly = true;
+
+        function reset() {
+            cid = undefined;
+            mid = undefined;
+        }
+
+        function onanswer() {
+            answer = JSON.parse(this.response);
+            cid = answer.conversationId;
+            mid = answer.parentMessageId;
+            output.value += 'chatgpt: ' + answer.text + '\n';
+            btn_send.disabled=false;
+        }
+
+        function ask() {
+            const text = input.value;
+            output.value += 'you: ' + text + '\n';
+            
+            const req = new XMLHttpRequest();
+            req.onload = onanswer;
+            req.open("POST", "/ask");
+            req.setRequestHeader("Content-Type", "application/json");
+            req.send(JSON.stringify({
+                "text": text,
+                "cid": cid,
+                "mid": mid
+            }));
+            btn_send.disabled=true;
+            input.value = '';
+        } 
