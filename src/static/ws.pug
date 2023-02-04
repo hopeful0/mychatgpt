@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    title="my chatgpt"
+  body(style='padding:16px')
+    textarea#output(value='' rows="30", style='width:100%') 
+    br
+    input#input(type="text", style='width:100%' onkeypress='keypress(event)')
+    br
+    input#btn_send(type="button", value="send" onclick='ask()')
+    script.
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const btn_send = document.getElementById('btn_send');
+        output.readOnly = true;
+
+        const ws = new WebSocket(`ws://${document.location.host}/longask`);
+
+        ws.onerror = (error) =>{
+            alert(`ERROR: ${error}! Try to reload this page!`);
+        }
+
+        ws.onmessage = (msg) => {
+            var text = msg.data;
+            if (text.endsWith('\u0000')) {
+                btn_send.disabled=false;
+                text = text.substring(0, text.length - 1);
+                text += '\n\n'
+            }
+            output.value += text;
+        }
+
+        function ask() {
+            const text = input.value;
+            output.value += `you:\n${text}\n\n`;
+            ws.send(text + '\n');
+            btn_send.disabled=true;
+            input.value = '';
+            output.value += 'chatgpt: ';
+        }
+
+        function keypress(event) {
+            if (event.which == 13) {
+                ask();
+            }
+        }
